@@ -172,7 +172,19 @@ pascal_sbd_dataset = dataset_base.copy({
     'class_names': PASCAL_CLASSES,
 })
 
+# Custom dataset for plant segmentation
+# Utilized Colab paths
+plant_seg_dataset = dataset_base.copy({
+    'name': 'Plant Segmentation',
 
+    'train_images': '/content/yolact/data/img-seg-dataset/train',
+    'valid_images': '/content/yolact/data/img-seg-dataset/valid',
+    
+    'train_info': '/content/yolact/data/img-seg-dataset/train/_annotations.coco.json',
+    'valid_info': '/content/yolact/data/img-seg-dataset/valid/_annotations.coco.json',
+
+    'class_names': ('biber', 'feslegen', 'marul', 'maydanoz'),
+})
 
 
 
@@ -765,6 +777,17 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
         'pred_scales': [[32], [64], [128], [256], [512]],
         'use_square_anchors': False,
     })
+})
+
+# Custom yolact config for plant segmentation
+yolact_plant_seg_config = yolact_resnet50_config.copy({
+    'name': 'yolact_resnet50_plant_seg',
+
+    # Dataset stuff
+    'dataset': plant_seg_dataset,
+    'num_classes': len(plant_seg_dataset.class_names) + 1,
+
+    'max_size': 550,
 })
 
 # ----------------------- YOLACT++ CONFIGS ----------------------- #
