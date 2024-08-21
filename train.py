@@ -145,6 +145,37 @@ class NetLoss(nn.Module):
         preds = self.net(images)
         losses = self.criterion(self.net, preds, targets, masks, num_crowds)
         return losses
+    
+class ScatterWrapper:
+    """ Input is any number of lists. This will preserve them through a dataparallel scatter. """
+
+    def __init__(self, *args):
+        for arg in args:
+            if not isinstance(arg, list):
+                print('Warning: ScatterWrapper got input of non-list type.')
+        self.args = args
+        self.batch_size = len(args[0])
+
+    def make_mask(self):
+        out = torch.Tensor(list(range(self.batch_size))).long()
+        if args.cuda:
+            return out.cuda()
+        else:
+            return out
+
+    def get_args(self, mask):
+        device = mask.device
+        mask = [int(x) for x in mask]
+        out_args = [[] for _ in self.args]
+
+        for out, arg in zip(out_args, self.args):
+            for idx in mask:
+                x = arg[idx]
+                if isinstance(x, torch.Tensor):
+                    x = x.to(device)
+                out.append(x)
+
+        return out_args
 
 class CustomDataParallel(nn.DataParallel):
     """
@@ -248,7 +279,7 @@ def train():
 
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
-                                  shuffle=True, collate_fn=detection_collate,
+                                  shuffle=False, collate_fn=detection_collate,
                                   pin_memory=True)
     
     
