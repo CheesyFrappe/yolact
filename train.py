@@ -280,7 +280,7 @@ def train():
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
                                   shuffle=False, collate_fn=detection_collate,
-                                  pin_memory=True)
+                                  pin_memory=False)
     
     
     save_path = lambda epoch, iteration: SavePath(cfg.name, epoch, iteration).get_path(root=args.save_folder)
